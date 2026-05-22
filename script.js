@@ -147,6 +147,13 @@ function loadRound() {
 
     // Gerar dados do gráfico pré-decisão
     gameState.baseData = gameState.currentEvent.setupCandles();
+    
+    // CORREÇÃO: Sanitizar os candles para evitar erro do Lightweight Charts
+    gameState.baseData.forEach(c => {
+        c.high = Math.max(c.high, c.open, c.close);
+        c.low = Math.min(c.low, c.open, c.close);
+    });
+
     gameState.candleSeries.setData([]);
     
     // Animação de desenho dos candles
