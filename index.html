@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mercado em Jogo: Simulador de Investimentos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="app-container">
+        
+        <!-- HEADER (Visible during game) -->
+        <header id="game-header" class="hidden">
+            <div class="header-left">
+                <h1>Mercado em Jogo</h1>
+                <span id="player-name-display" class="badge"></span>
+                <span id="round-display" class="badge round-badge">Rodada 1 / 20</span>
+            </div>
+            <div class="header-right">
+                <div class="stat-box">
+                    <span class="stat-label">Capital Atual</span>
+                    <span id="capital-display" class="stat-value">R$ 1.000.000,00</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- SCREEN 1: LOGIN -->
+        <section id="screen-login" class="screen active">
+            <div class="login-card">
+                <div class="logo-container">
+                    <div class="chart-icon">
+                        <div class="bar up" style="height: 40%"></div>
+                        <div class="bar down" style="height: 70%"></div>
+                        <div class="bar up" style="height: 100%"></div>
+                    </div>
+                </div>
+                <h2>Mercado em Jogo</h2>
+                <p>Simulador Educacional de Decisão em Investimentos</p>
+                
+                <div class="input-group">
+                    <label for="player-name">Seu Nome / Apelido</label>
+                    <input type="text" id="player-name" placeholder="Digite seu nome..." autocomplete="off">
+                </div>
+                
+                <button id="btn-start" class="btn btn-primary btn-large">Iniciar Simulação</button>
+                
+                <div class="educational-warning">
+                    <strong>Aviso:</strong> Este simulador tem finalidade exclusivamente educacional. As ações, notícias e cenários apresentados são fictícios e não constituem recomendação de investimento.
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 2: TUTORIAL -->
+        <section id="screen-tutorial" class="screen hidden">
+            <div class="tutorial-card">
+                <h2>Como Funciona?</h2>
+                <div class="tutorial-content">
+                    <p>Você iniciará com <strong>R$ 1.000.000,00</strong> fictícios.</p>
+                    <p>O jogo possui <strong>20 fases</strong>. Em cada uma, o mercado irá se desenhar formando um padrão gráfico (candlesticks).</p>
+                    <p>No meio do movimento, uma <strong>notícia fundamentalista</strong> aparecerá no painel. Seu papel é interpretar o que é mais forte: o padrão gráfico ou o peso da notícia.</p>
+                    <ul>
+                        <li><span class="color-up">Verde</span>: Fechamento acima da abertura (Alta).</li>
+                        <li><span class="color-down">Vermelho</span>: Fechamento abaixo da abertura (Queda).</li>
+                    </ul>
+                    <p>Você deverá escolher quanto deseja investir e se quer <strong>Comprar</strong>, <strong>Vender</strong> ou <strong>Manter</strong> sua posição.</p>
+                </div>
+                <button id="btn-understand" class="btn btn-primary">Entendi, vamos lá!</button>
+            </div>
+        </section>
+
+        <!-- SCREEN 3: GAME ROUND -->
+        <section id="screen-game" class="screen hidden">
+            <div class="game-layout">
+                
+                <!-- Main Chart Area -->
+                <div class="chart-area">
+                    <div class="chart-header">
+                        <h3 id="asset-name">ATIVO FICTÍCIO</h3>
+                        <div class="indicators">
+                            <!-- Indicadores técnicos básicos se necessário -->
+                        </div>
+                    </div>
+                    <!-- The lightweight chart goes here -->
+                    <div id="tvchart"></div>
+                </div>
+
+                <!-- Side Panel (News & Actions) -->
+                <div class="side-panel">
+                    
+                    <!-- News Box (Hidden initially until chart pauses) -->
+                    <div id="news-box" class="panel-card disabled">
+                        <div class="panel-header">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2Zm0 0a2 2 0 0 1-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8"/><path d="M15 18h-5"/><path d="M10 6h8v4h-8V6Z"/></svg>
+                            <h3>Notícia do Mercado</h3>
+                        </div>
+                        <div class="panel-body">
+                            <p id="news-text">Aguardando desenrolar do mercado...</p>
+                        </div>
+                    </div>
+
+                    <!-- Action Box -->
+                    <div id="action-box" class="panel-card disabled">
+                        <div class="panel-header">
+                            <h3>Sua Decisão</h3>
+                        </div>
+                        <div class="panel-body">
+                            <div class="input-group">
+                                <label for="investment-amount">Valor a Investir (R$)</label>
+                                <input type="number" id="investment-amount" min="0" value="0" step="1000">
+                                <div class="quick-amounts">
+                                    <button class="btn-quick" data-pct="0.1">10%</button>
+                                    <button class="btn-quick" data-pct="0.25">25%</button>
+                                    <button class="btn-quick" data-pct="0.5">50%</button>
+                                    <button class="btn-quick" data-pct="1">100%</button>
+                                </div>
+                            </div>
+                            
+                            <div class="action-buttons">
+                                <button id="btn-buy" class="btn btn-buy">Comprar</button>
+                                <button id="btn-sell" class="btn btn-sell">Vender</button>
+                                <button id="btn-hold" class="btn btn-hold">Manter</button>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+            
+            <!-- Result Modal (Appears after round ends) -->
+            <div id="round-result-modal" class="modal hidden">
+                <div class="modal-content">
+                    <h2 id="round-result-title">Resultado da Rodada</h2>
+                    <div class="result-details">
+                        <p>Variação do Ativo: <strong id="asset-variation">0%</strong></p>
+                        <p>Sua Decisão: <strong id="player-decision">-</strong></p>
+                        <p>Resultado Financeiro: <strong id="financial-result" class="neutral">R$ 0,00</strong></p>
+                    </div>
+                    <div class="feedback-box">
+                        <h4>Análise Pedagógica</h4>
+                        <p id="pedagogical-feedback">...</p>
+                    </div>
+                    <button id="btn-next-round" class="btn btn-primary btn-large">Próxima Fase</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- SCREEN 4: FINAL RESULT -->
+        <section id="screen-final" class="screen hidden">
+            <div class="final-card">
+                <h2>Simulação Concluída</h2>
+                <div class="final-stats">
+                    <div class="stat-box large">
+                        <span class="stat-label">Capital Final</span>
+                        <span id="final-capital" class="stat-value">R$ 0,00</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Rentabilidade</span>
+                        <span id="final-profit-pct" class="stat-value">0%</span>
+                    </div>
+                    <div class="stat-box">
+                        <span class="stat-label">Perfil do Investidor</span>
+                        <span id="final-profile" class="stat-value" style="color: var(--accent-blue)">-</span>
+                    </div>
+                </div>
+                
+                <div class="report-box">
+                    <h3>Relatório de Decisões</h3>
+                    <div class="table-container">
+                        <table id="history-table">
+                            <thead>
+                                <tr>
+                                    <th>Rodada</th>
+                                    <th>Padrão / Notícia</th>
+                                    <th>Sua Decisão</th>
+                                    <th>Resultado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Injected by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="final-actions">
+                    <button id="btn-copy-report" class="btn btn-secondary">Copiar Relatório para Professor</button>
+                    <button id="btn-restart" class="btn btn-primary">Jogar Novamente</button>
+                </div>
+            </div>
+        </section>
+        
+    </div>
+
+    <!-- Scripts -->
+    <!-- Lightweight Charts (Standalone via Unpkg) -->
+    <script src="https://unpkg.com/lightweight-charts/dist/lightweight-charts.standalone.production.js"></script>
+    <script src="data/eventos.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
